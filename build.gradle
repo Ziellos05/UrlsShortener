@@ -1,33 +1,50 @@
-buildscript {
-	ext {
-		cleanArchitectureVersion = '3.0.1'
-		springBootVersion = '3.0.4'
-		sonarVersion = '4.0.0.2929'
-		jacocoVersion = '0.8.8'
-        lombokVersion = '1.18.26'
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '2.6.7'
+	id 'io.spring.dependency-management' version '1.1.0'
+}
+
+group = 'cb.urlshortener'
+version = '1.0.0'
+sourceCompatibility = '17'
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
 	}
 }
 
-plugins {
-	id 'co.com.bancolombia.cleanArchitecture' version "${cleanArchitectureVersion}"
-	id 'org.springframework.boot' version "${springBootVersion}"
-	id 'org.sonarqube' version "${sonarVersion}"
-	id 'jacoco'
+repositories {
+	mavenCentral()
+	jcenter()
 }
 
-sonarqube {
-    def modules = subprojects.projectDir.collect { "${it.toString().replace(project.projectDir.toString() + "/", "")}" }
-    properties {
-        property "sonar.sourceEnconding", "UTF-8"
-        property "sonar.modules", "${modules.join(',')}"
-        property "sonar.sources", "src,deployment,settings.gradle,main.gradle,build.gradle,${modules.collect { "${it}/build.gradle" }.join(',')}"
-        property "sonar.exclusions","**/MainApplication.java"
-        property "sonar.test", "src/test"
-        property "sonar.java.binaries", ""
-        property "sonar.junit.reportsPath", ""
-        property "sonar.java.coveragePlugin", "jacoco"
-        property "sonar.coverage.jacoco.xmlReportPaths", "build/reports/jacoco/test/jacocoTestReport.xml"
-    }
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	
+	// JSON to CSV
+		implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.13.0'
+		implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.0'
+		
+	// OpeAPI
+	implementation 'org.springdoc:springdoc-openapi-ui:1.6.9'
+	implementation 'joda-time:joda-time:2.12.1'
+	// Pa leer las rutas 
+	implementation 'org.springframework.boot:spring-boot-starter-actuator:2.7.5'
+	compileOnly 'org.projectlombok:lombok'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	runtimeOnly 'org.postgresql:postgresql:42.6.0'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+	// Authorization
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client:3.0.6'
+	compileOnly 'jakarta.servlet:jakarta.servlet-api:6.0.0'
 }
 
-apply from: './main.gradle'
+tasks.named('test') {
+	useJUnitPlatform()
+}
