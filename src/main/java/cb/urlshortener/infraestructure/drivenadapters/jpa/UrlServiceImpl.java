@@ -3,23 +3,26 @@ package cb.urlshortener.infraestructure.drivenadapters.jpa;
 import java.util.List;
 
 import cb.urlshortener.domain.models.Url;
+import cb.urlshortener.domain.models.User;
 import cb.urlshortener.domain.models.gateways.UrlService;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-// Servicio encargado del CRUD de los estrados, utiliza JPA
 @Service
 public class UrlServiceImpl implements UrlService {
 
 	@Autowired
 	private UrlRepository urlRepository;
 
-	@Transactional
-	public String createShortened(Url url) {
+	@Autowired
+	private UserRepository userRepository;
 
-		Url exists = urlRepository.findOneByOriginal(url.getOriginal());
+	@Transactional
+	public String createShortened(Url url) throws Exception {
+
+		Url exists = urlRepository.findOneByOriginalAndUsername(url.getOriginal(), url.getUsername());
 
 		if (exists != null) {
 			return "http://localhost:8080/r/" + exists.getShortened();
@@ -34,9 +37,8 @@ public class UrlServiceImpl implements UrlService {
 	}
 
 	@Transactional(readOnly = true)
-	public String redirect(String shortened) {
+	public String redirect(String shortened) throws Exception {
 		Url url = urlRepository.findOneByShortened(shortened);
-		System.out.println(url);
 		if (url == null) {
 			return "https://www.constructorabolivar.com/";
 		}
@@ -47,6 +49,12 @@ public class UrlServiceImpl implements UrlService {
 	@Transactional(readOnly = true)
 	public List<Url> getUrlsByUser(String username) throws Exception {
 		return urlRepository.findByUsername(username);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public User getValue(String username) throws Exception {
+		return userRepository.findOneByUsername(username);
 	}
 
 }

@@ -1,6 +1,5 @@
 package cb.urlshortener.domain.models;
 
-// Modelo para los estratos, relacionado con la tabla STRATUMS en la base de datos
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
@@ -29,6 +28,7 @@ public class Url {
 	private String shortened;
 
 	@Column(name = "username")
+	@NotNull
 	private String username;
 
 }

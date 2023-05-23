@@ -6,12 +6,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.Optional;
 
-// Interface que es implementada por el servicio de estratos
 public interface UrlRepository extends JpaRepository<Url, Long> {
 
-    Url findOneByShortened(String shortened);
+    Url findOneByShortened(String shortened) throws Exception;
 
-    Url findOneByOriginal(String original);
+    Url findOneByOriginalAndUsername(String original, String user) throws Exception;
 
-    List<Url> findByUsername(String username);
+    List<Url> findByUsername(String username) throws Exception;
 }

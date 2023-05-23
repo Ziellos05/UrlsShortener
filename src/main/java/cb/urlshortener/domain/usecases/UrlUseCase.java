@@ -1,9 +1,9 @@
 package cb.urlshortener.domain.usecases;
 
-import java.security.Principal;
 import java.util.List;
 
 import cb.urlshortener.domain.models.Url;
+import cb.urlshortener.domain.models.User;
 import cb.urlshortener.domain.models.gateways.UrlService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -14,14 +14,14 @@ public class UrlUseCase {
     @Autowired
     private UrlService urlService;
 
-    public UrlUseCase(UrlService urlRepository) {
+    public UrlUseCase(UrlService urlRepository) throws Exception {
         this.urlService = urlRepository;
     }
 
     // This creates the shortened url randomly or with a path String
 
 
-    public String redirect(String path){
+    public String redirect(String path) throws Exception {
         return urlService.redirect(path);
     }
 
@@ -29,7 +29,11 @@ public class UrlUseCase {
         return urlService.getUrlsByUser(username);
     }
 
-    public String createShortened(Url url) {
+    public User getValue(String username) throws Exception {
+        return urlService.getValue(username);
+    }
+
+    public String createShortened(Url url) throws Exception {
         return urlService.createShortened(url);
     }
 
