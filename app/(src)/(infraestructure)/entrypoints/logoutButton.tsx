@@ -1,5 +1,6 @@
 "use client"
 
+// Componente que permite desloguearse de la autenticación con OAuth2.0
 import { signOut } from "next-auth/react"
 
 export default () => <button onClick={() => signOut()}>Sign out</button>

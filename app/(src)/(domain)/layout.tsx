@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 
 const inter = Inter({ subsets: ['latin'] })
 
+// Este archivo define la estructura física de la app, acá se pueden configurar headers, footers, estilos...
 export const metadata = {
   title: 'URLs Constructora Bolivar',
   description: 'Constructora Bolivar Url Shortener Frontend',

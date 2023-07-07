@@ -1,53 +1,41 @@
 "use client"
 
-export default function SubmitButton(props: { token: string; }) {
-  // Handles the submit event on form submit.
+// Componente que presenta el form a través del cual se puede registrar una nueva URL
+export default function SubmitForm(props: { token: string; }) {
+
+  // Acá se configura la data y se hace el request a la API
   const handleSubmit = async (event: any) => {
-    // Stop the form from submitting and refreshing the page.
- 
-    // Get data from the form.
+
     const data = {
       original: event.target.original.value,
       shortened: event.target.shortened.value,
       token: props.token
     }
- 
-    // Send the data to the server in JSON format.
-    const JSONdata = JSON.stringify(data)
- 
-    // API endpoint where we send form data.
-    const endpoint = "/api/url";
- 
-    // Form the request for sending data to the server.
- 
-    // Send the form data to our forms API on Vercel and get a response.
-    const response = await fetch(endpoint, {
-      // The method is POST because we are sending data.
+
+    const response = await fetch(process.env.NEXT_PUBLIC_NEXTAUTH_URL + "/api/postUrl", {
+
       method: 'POST',
-      // Tell the server we're sending JSON.
+
       headers: {
         'Content-Type': 'application/json'
       },
-      // Body of the request is the JSON data we created above.
-      body: JSONdata,
-    })
- 
-    // Get the response data from server as JSON.
-    // If server returns the name submitted, that means the form works.
 
+      body: JSON.stringify(data),
+    })
+
+    // Este Try Catch es el que genera las alertas que avisa si la nueva URL se generó o no
     try {
       const result = await response.json()
       if (response.status === 200) {
         alert("URL generada");
       }
     } catch (error) {
-      console.error(error);
       alert("Por favor cambia el texto acortado");
     }
 
   }
   return (
-    // We pass the event to the handleSubmit() function on submit.
+
     <div>
       <form onSubmit={handleSubmit}>
         <div className="grid gap-6 mb-6 md:grid-cols-2">
