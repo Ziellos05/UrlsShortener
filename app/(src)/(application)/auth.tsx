@@ -10,6 +10,10 @@ export const authConfig: NextAuthOptions = {
             clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
           }),
     ],
+
+    session: {
+        maxAge: 3600
+    }
 };
 
 export async function loginIsRequiredServer() {
