@@ -10,8 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+// This class is the service that is responsible for implementing the URL gateway service
 @Service
 public class UrlServiceImpl implements UrlService {
+
+	private String redirectWeb = "https://webwhereapiislaunched.com/r/";
 
 	@Autowired
 	private UrlRepository urlRepository;
@@ -19,42 +22,47 @@ public class UrlServiceImpl implements UrlService {
 	@Autowired
 	private UserRepository userRepository;
 
+	// Create a new shortened URL if the user is authenticated
 	@Transactional
-	public String createShortened(Url url) throws Exception {
+	public Url createShortened(Url url) throws Exception {
 
 		Url exists = urlRepository.findOneByOriginalAndUsername(url.getOriginal(), url.getUsername());
 
 		if (exists != null) {
-			return "http://localhost:8080/r/" + exists.getShortened();
+			return exists;
 		} else  if (url.getShortened() == null) {
 			url.setShortened(RandomStringUtils.randomAlphanumeric(5));
+			while (urlRepository.findOneByShortened(url.getShortened()) != null) {
+				url.setShortened(RandomStringUtils.randomAlphanumeric(5));
+			}
 			// Here there is a possibility that the generated path would already exist
 		} else if ( urlRepository.findOneByShortened(url.getShortened()) != null) {
-			return "No puedes usar este path por estar siendo usado o el programa ha fallado exitosamente, try again.";
+			return null;
 		}
 		urlRepository.save(url);
-		return "http://localhost:8080/r/" +url.getShortened();
+
+		return url;
 	}
 
+	// Redirect a shortened URL to original path
 	@Transactional(readOnly = true)
 	public String redirect(String shortened) throws Exception {
 		Url url = urlRepository.findOneByShortened(shortened);
 		if (url == null) {
-			return "https://www.constructorabolivar.com/";
+			return "https://www.google.com/";
 		}
 		return url.getOriginal();
 	}
 
+	// Get the list of URLs created by the authenticated user
 	@Override
 	@Transactional(readOnly = true)
 	public List<Url> getUrlsByUser(String username) throws Exception {
-		return urlRepository.findByUsername(username);
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public User getValue(String username) throws Exception {
-		return userRepository.findOneByUsername(username);
+		List<Url> urls = urlRepository.findByUsername(username);
+		for (Url i : urls) {
+			i.setShortened(redirectWeb+i.getShortened());
+		}
+		return urls;
 	}
 
 }

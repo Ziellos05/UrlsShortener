@@ -1,8 +1,10 @@
-package cb.urlshortener.infraestructure.drivenadapters.auth;
+package cb.urlshortener.application.auth;
 
 import io.jsonwebtoken.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
@@ -14,11 +16,20 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+// Filter that generates and validates the authorization header
+@Component
 public class ApiKeyFilter extends OncePerRequestFilter {
+
     private final String HEADER = "Authorization";
     private final String PREFIX = "Bearer ";
-    private final String SECRET = "mySecretKeyasdasdas354235wefwefwe5234rserfsdfsdgdfgdf.sfsdfsdfsdfsdfsdfsdfsdsdf";
+    public static String SECRET;
 
+    @Value("${spring.datasource.secretkey}")
+    private void setDatabase(String db) {
+        SECRET = db;
+    }
+
+    // Method that chain the filter after validating the authorization header
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
         try {
@@ -44,16 +55,13 @@ public class ApiKeyFilter extends OncePerRequestFilter {
         }
     }
 
+    // Method that validates send token
     private Claims validateToken(HttpServletRequest request) throws Exception {
         String jwtToken = request.getHeader(HEADER).replace(PREFIX, "");
         return Jwts.parser().setSigningKey(SECRET.getBytes()).parseClaimsJws(jwtToken).getBody();
     }
 
-    /**
-     * Metodo para autenticarnos dentro del flujo de Spring
-     *
-     * @param claims
-     */
+    // Method that allows authentication into the Spring flux
     private void setUpSpringAuthentication(Claims claims) throws Exception {
         @SuppressWarnings("unchecked")
         List<String> authorities = (List) claims.get("authorities");
@@ -64,6 +72,7 @@ public class ApiKeyFilter extends OncePerRequestFilter {
 
     }
 
+    // Method that validates if the JWT exists
     private boolean existeJWTToken(HttpServletRequest request, HttpServletResponse res) throws Exception {
         String authenticationHeader = request.getHeader(HEADER);
         if (authenticationHeader == null || !authenticationHeader.startsWith(PREFIX))
