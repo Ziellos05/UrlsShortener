@@ -1,0 +1,79 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '2.6.7'
+	id 'io.spring.dependency-management' version '1.1.0'
+	id 'jacoco'
+}
+
+group = 'cb.urlshortener'
+version = '1.0.0'
+sourceCompatibility = '17'
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	
+	// JSON to CSV
+		implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.13.0'
+		implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.0'
+		
+	// OpeAPI
+	implementation 'org.springdoc:springdoc-openapi-ui:1.6.9'
+	implementation 'joda-time:joda-time:2.12.1'
+	// Pa leer las rutas 
+	implementation 'org.springframework.boot:spring-boot-starter-actuator:2.7.5'
+	compileOnly 'org.projectlombok:lombok'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	runtimeOnly 'org.postgresql:postgresql:42.6.0'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+	// Authorization
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client:3.0.6'
+	compileOnly 'jakarta.servlet:jakarta.servlet-api:6.0.0'
+
+	// Security
+	implementation 'org.jasypt:jasypt:1.9.3'
+	implementation 'org.springframework.boot:spring-boot-starter-security:3.1.0'
+	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+	// Testing
+	testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.2'
+	testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.2'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+jacoco {
+	toolVersion = '0.8.10'
+}
+
+jacocoTestReport {
+	dependsOn test // tests are required to run before generating the report
+
+	afterEvaluate {
+		classDirectories.setFrom(files(classDirectories.files.collect {
+			fileTree(dir: it, exclude: [
+					"cb/urlshortener/**/models",
+					"cb/urlshortener/**/auth",
+					"**/config/*"
+			])
+		}))
+	}
+}
